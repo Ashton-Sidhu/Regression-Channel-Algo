@@ -93,7 +93,7 @@ dfP['movingAverage'] = dfP['Adj Close'].rolling(window=200).mean()
 
 #set up num_units_long  
 if complex_entrance == 1:           
-    dfP['long_entry'] = ((dfP.zScore > - entryZscore) & ( dfP.zScore.shift(1) < - entryZscore) * (dfP['Adj Close'] > dfP.movingAverage)) 
+    dfP['long_entry'] = ((dfP.zScore > - entryZscore) & ( dfP.zScore.shift(1) < - entryZscore) & (dfP['Adj Close'] > dfP.movingAverage)) 
     dfP['long_exit'] = ((dfP.zScore < - exitZscore) & (dfP.zScore.shift(1) > - exitZscore)) 
 else:
     dfP['long_entry'] = ((dfP.zScore <  -entryZscore))
