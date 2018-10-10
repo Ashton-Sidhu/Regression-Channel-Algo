@@ -15,7 +15,7 @@ import os
 yf.pdr_override() # <== that's all it takes :-)
 
 
-start_date = '2008-10-01' 
+start_date = '2003-01-01' 
 end_date = datetime.now() 
 
 symbol = 'V' #ticker of the stock you want to trade (saved as "ticker.csv")
@@ -48,7 +48,7 @@ dfP = pd.read_csv(address, parse_dates=['Date'])
 dfP = dfP.sort_values(by='Date')
 dfP.set_index('Date', inplace = True)
 
-dfP, dfT = np.split(dfP, [int(.6*len(dfP))])
+#dfP, dfT = np.split(dfP, [int(.6*len(dfP))])
 
 
   
@@ -85,13 +85,15 @@ dfP['stdev'] = std_dev
 dfP['LB'] = mean - entryZscore*std_dev
 dfP['UB'] = mean + entryZscore*std_dev
 
+dfP['movingAverage'] = dfP['Adj Close'].rolling(window=200).mean()
+
 
 #dfP['zScore'].plot()
 #plt.show()
 
 #set up num_units_long  
 if complex_entrance == 1:           
-    dfP['long_entry'] = ((dfP.zScore > - entryZscore) & ( dfP.zScore.shift(1) < - entryZscore)) 
+    dfP['long_entry'] = ((dfP.zScore > - entryZscore) & ( dfP.zScore.shift(1) < - entryZscore) * (dfP['Adj Close'] > dfP.movingAverage)) 
     dfP['long_exit'] = ((dfP.zScore < - exitZscore) & (dfP.zScore.shift(1) > - exitZscore)) 
 else:
     dfP['long_entry'] = ((dfP.zScore <  -entryZscore))
