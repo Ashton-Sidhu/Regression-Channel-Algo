@@ -10,22 +10,28 @@ import numpy as np
 pd.core.common.is_list_like = pd.api.types.is_list_like #datareader problem probably fixed in next version of datareader
 from pandas_datareader import data as pdr
 import fix_yahoo_finance as yf
+import os
+
 yf.pdr_override() # <== that's all it takes :-)
+
 
 start_date = '2003-01-01' 
 end_date = datetime.now() 
 
-symbol = 'SPY' #ticker of the stock you want to trade (saved as "ticker.csv")
+symbol = 'V' #ticker of the stock you want to trade (saved as "ticker.csv")
 entryZscore = 2 #gauge of the channel
 exitZscore = -2 #exit level (can be from 0 to -number). Notice that the entry and the exit have their signs "inverted"
-window = 27 #lookback
+window = 17 #lookback
 shorts = 0 #shorts=0 means no shorting, long only
 regression = 1 # the mid-line is a linear regression 
-complex_entrance = 1 
+complex_entrance = 1
 forbidden = 1 # automatic exit
 delay = 1 #1 for instant execution, 2 for one day delay
 tcost=10/10000*0 #transaction costs
+directory = "Results"
 
+if not os.path.exists(directory):
+    os.makedirs(directory)
 
 msg = "" 
 address = symbol + '.csv'
@@ -42,6 +48,10 @@ dfP = pd.read_csv(address, parse_dates=['Date'])
 dfP = dfP.sort_values(by='Date')
 dfP.set_index('Date', inplace = True)
 
+#dfP, dfT = np.split(dfP, [int(.6*len(dfP))])
+
+
+  
 #dfP['Adj Close'].plot()
 #plt.show()
 
@@ -75,13 +85,15 @@ dfP['stdev'] = std_dev
 dfP['LB'] = mean - entryZscore*std_dev
 dfP['UB'] = mean + entryZscore*std_dev
 
+dfP['movingAverage'] = dfP['Adj Close'].rolling(window=200).mean()
+
 
 #dfP['zScore'].plot()
 #plt.show()
 
 #set up num_units_long  
 if complex_entrance == 1:           
-    dfP['long_entry'] = ((dfP.zScore > - entryZscore) & ( dfP.zScore.shift(1) < - entryZscore)) 
+    dfP['long_entry'] = ((dfP.zScore > - entryZscore) & ( dfP.zScore.shift(1) < - entryZscore) * (dfP['Adj Close'] > dfP.movingAverage)) 
     dfP['long_exit'] = ((dfP.zScore < - exitZscore) & (dfP.zScore.shift(1) > - exitZscore)) 
 else:
     dfP['long_entry'] = ((dfP.zScore <  -entryZscore))
