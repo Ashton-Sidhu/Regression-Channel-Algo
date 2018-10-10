@@ -19,12 +19,12 @@ start_date = '2008-10-01'
 end_date = datetime.now() 
 
 symbol = 'V' #ticker of the stock you want to trade (saved as "ticker.csv")
-entryZscore = 1 #gauge of the channel
-exitZscore = -1 #exit level (can be from 0 to -number). Notice that the entry and the exit have their signs "inverted"
-window = 27 #lookback
+entryZscore = 2 #gauge of the channel
+exitZscore = -2 #exit level (can be from 0 to -number). Notice that the entry and the exit have their signs "inverted"
+window = 17 #lookback
 shorts = 0 #shorts=0 means no shorting, long only
 regression = 1 # the mid-line is a linear regression 
-complex_entrance = 0
+complex_entrance = 1
 forbidden = 1 # automatic exit
 delay = 1 #1 for instant execution, 2 for one day delay
 tcost=10/10000*0 #transaction costs
@@ -48,7 +48,7 @@ dfP = pd.read_csv(address, parse_dates=['Date'])
 dfP = dfP.sort_values(by='Date')
 dfP.set_index('Date', inplace = True)
 
-dfT, dfP = np.split(dfP, [int(.6*len(dfP))])
+dfP, dfT = np.split(dfP, [int(.6*len(dfP))])
 
 
   
